@@ -42,6 +42,14 @@ public class Menu extends JFrame {
     public static Calendrier Calendrier;
     public static JLabel effectuees;
     private static PopUpTache PopUpTache;
+    private String JourWeek;
+    private String NuméroWeek;
+    private String MoisWeek;
+    private String AnnéeWeek;
+    private List<String> Mois30;
+    private List<String> Mois31;
+    private String[] Jour;
+    private String JournéeToday;
 
     /**
      * Launch the application.
@@ -69,114 +77,7 @@ public class Menu extends JFrame {
         Calendrier.NBFAITES = 0;
         Calendrier.NBPASFAITES = 0;
 
-        String[] Jour = new String[7];
-        Jour[0]= "Lundi";
-        Jour[1]= "Mardi";
-        Jour[2]= "Mercredi";
-        Jour[3]= "Jeudi";
-        Jour[4]= "Vendredi";
-        Jour[5]= "Samedi";
-        Jour[6]= "Dimanche";
-
-        DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, Locale.FRENCH);
-        String formattedDate = df.format(new Date());
-        String[] DateEnLettres = formattedDate.split(" ");
-
-        String JournéeToday = DateEnLettres[0];
-        String NuméroWeek;
-        String MoisWeek = DateEnLettres[2];
-        String AnnéeWeek = DateEnLettres[3];
-
-        switch(MoisWeek){
-
-            case "janvier":
-                MoisWeek = "01";
-                break;
-
-            case "février":
-                MoisWeek = "02";
-                break;
-
-            case "mars":
-                MoisWeek = "03";
-                break;
-
-            case "avril":
-                MoisWeek = "04";
-                break;
-
-            case "mai":
-                MoisWeek = "05";
-                break;
-
-            case "juin":
-                MoisWeek = "06";
-                break;
-
-            case "juillet":
-                MoisWeek = "07";
-                break;
-
-            case "août":
-                MoisWeek = "08";
-                break;
-
-            case "septembre":
-                MoisWeek = "09";
-                break;
-
-            case "octobre":
-                MoisWeek = "10";
-                break;
-
-            case "novembre":
-                MoisWeek = "11";
-                break;
-
-            case "décembre":
-                MoisWeek = "12";
-                break;
-        }
-
-        List<String> Mois31 = new LinkedList<String>();
-        Mois31.add("01");
-        Mois31.add("03");
-        Mois31.add("05");
-        Mois31.add("07");
-        Mois31.add("08");
-        Mois31.add("10");
-        Mois31.add("12");
-        List<String> Mois30 = new LinkedList<String>();
-        Mois30.add("04");
-        Mois30.add("06");
-        Mois30.add("09");
-        Mois30.add("11");
-        int JoursAEnlevé = 0;
-        for (String Journée : Jour) {
-            if (!(JournéeToday.toUpperCase().equals(Jour[JoursAEnlevé].toUpperCase()))) {
-                JoursAEnlevé = JoursAEnlevé+1;
-            }
-        }
-        if (Integer.valueOf(DateEnLettres[1])-JoursAEnlevé > 0) {
-            NuméroWeek = String.valueOf(Integer.valueOf(DateEnLettres[1])-JoursAEnlevé);
-        } else {
-            NuméroWeek = String.valueOf(DateEnLettres[1]);
-            while (Integer.valueOf(NuméroWeek) > 0) {
-                NuméroWeek = String.valueOf(Integer.valueOf(DateEnLettres[1])-1);
-                JoursAEnlevé --;
-            }
-            if (Mois31.contains(MoisWeek)) {
-                NuméroWeek = String.valueOf(31-JoursAEnlevé);
-            } else if (Mois30.contains(MoisWeek)) {
-                NuméroWeek = String.valueOf(30-JoursAEnlevé);
-            } else if ((Integer.valueOf(AnnéeWeek)%4==0 && Integer.valueOf(AnnéeWeek)%100!=0) || Integer.valueOf(AnnéeWeek)%400==0) {
-                NuméroWeek = String.valueOf(29-JoursAEnlevé);
-            } else {
-                NuméroWeek = String.valueOf(28-JoursAEnlevé);
-            }
-        }
-
-
+        calculsDate();
         setTitle("To-Do Lister by Dracolf");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 700, 700);
@@ -203,7 +104,6 @@ public class Menu extends JFrame {
         JPanel PanelPrincipal = new JPanel();
         PanelPrincipal.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-        // Créez un JScrollPane pour panel_3
         JScrollPane scrollPane = new JScrollPane(PanelPrincipal);
         PanelPrincipal.setLayout(new BorderLayout(0, 0));
 
@@ -212,25 +112,7 @@ public class Menu extends JFrame {
         PanelPrincipal.add(panel_principal);
         panel_principal.setLayout(new GridLayout(12, 7, 0, 0));
 
-        for (int i=0;i<84;i++) {
-            JTextField text = new JTextField();
-            text.setBorder(new LineBorder(new Color(0, 0, 0)));
-            text.setText(String.valueOf(i));
-            text.setEditable(false);
-            text.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    System.out.println(Calendrier.NBFAITES);
-                    if (PopUpTache == null || !PopUpTache.isVisible()) {
-                        PopUpTache = new PopUpTache(text);
-                        PopUpTache.setVisible(true);
-                    } else {
-                        PopUpTache.toFront();
-                    }
-                }
-            });
-            panel_principal.add(text);
-        }
+        placerTaches(panel_principal);
 
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
@@ -344,26 +226,174 @@ public class Menu extends JFrame {
         panel_south.add(panel_s3, BorderLayout.SOUTH);
 
         JLabel lblNewLabel_14 = new JLabel("");
-        if ((double) this.Calendrier.NBFAITES/ (this.Calendrier.NBFAITES+this.Calendrier.NBPASFAITES)>= (double) 1.5/2) {
-            lblNewLabel_14.setText("Tu es goatesque chef !");
-            lblNewLabel_14.setForeground(new Color(0, 255, 0));
-            valRatio.setForeground(new Color(0, 255, 0));
-        } else {
-            if ((double) this.Calendrier.NBFAITES/ (this.Calendrier.NBFAITES+this.Calendrier.NBPASFAITES) >= (double) 1/2 &&
-                    (double) this.Calendrier.NBFAITES/ (this.Calendrier.NBFAITES+this.Calendrier.NBPASFAITES) < (double)1.5/2) {
-                lblNewLabel_14.setText("Pas mal chef, mais tu peux encore t'améliorer !");
-                lblNewLabel_14.setForeground(new Color(0, 255, 0));
-                valRatio.setForeground(new Color(0, 255, 0));
-            } else {
-                lblNewLabel_14.setText("T'es vraiment une fraude.");
-                lblNewLabel_14.setForeground(new Color(255, 0, 0));
-                valRatio.setForeground(new Color(255, 0, 0));
-            }
-        }
+
+        afficherMessage(lblNewLabel_14,valRatio);
+
 
         lblNewLabel_14.setFont(new Font("Source Sans Pro", Font.PLAIN, 14));
         panel_s3.add(lblNewLabel_14);
 
+        afficherJours(panel_days);
+
+    }
+
+    public static void updateNbFaitesVert() {
+        Calendrier.NBFAITES++;
+        effectuees.setText("Tâches effectuées : "+Calendrier.NBFAITES);
+    }
+
+    public void calculsDate() {
+
+        Jour = new String[7];
+        Jour[0]= "Lundi";
+        Jour[1]= "Mardi";
+        Jour[2]= "Mercredi";
+        Jour[3]= "Jeudi";
+        Jour[4]= "Vendredi";
+        Jour[5]= "Samedi";
+        Jour[6]= "Dimanche";
+
+        DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, Locale.FRENCH);
+        String formattedDate = df.format(new Date());
+        String[] DateEnLettres = formattedDate.split(" ");
+
+        JournéeToday = DateEnLettres[0];
+        MoisWeek = DateEnLettres[2];
+        AnnéeWeek = DateEnLettres[3];
+
+        switch(MoisWeek){
+
+            case "janvier":
+                MoisWeek = "01";
+                break;
+
+            case "février":
+                MoisWeek = "02";
+                break;
+
+            case "mars":
+                MoisWeek = "03";
+                break;
+
+            case "avril":
+                MoisWeek = "04";
+                break;
+
+            case "mai":
+                MoisWeek = "05";
+                break;
+
+            case "juin":
+                MoisWeek = "06";
+                break;
+
+            case "juillet":
+                MoisWeek = "07";
+                break;
+
+            case "août":
+                MoisWeek = "08";
+                break;
+
+            case "septembre":
+                MoisWeek = "09";
+                break;
+
+            case "octobre":
+                MoisWeek = "10";
+                break;
+
+            case "novembre":
+                MoisWeek = "11";
+                break;
+
+            case "décembre":
+                MoisWeek = "12";
+                break;
+        }
+
+        Mois31 = new LinkedList<String>();
+        Mois31.add("01");
+        Mois31.add("03");
+        Mois31.add("05");
+        Mois31.add("07");
+        Mois31.add("08");
+        Mois31.add("10");
+        Mois31.add("12");
+        Mois30 = new LinkedList<String>();
+        Mois30.add("04");
+        Mois30.add("06");
+        Mois30.add("09");
+        Mois30.add("11");
+        int JoursAEnlevé = 0;
+        for (String Journée : Jour) {
+            if (!(JournéeToday.toUpperCase().equals(Jour[JoursAEnlevé].toUpperCase()))) {
+                JoursAEnlevé = JoursAEnlevé+1;
+            }
+        }
+        if (Integer.valueOf(DateEnLettres[1])-JoursAEnlevé > 0) {
+            NuméroWeek = String.valueOf(Integer.valueOf(DateEnLettres[1])-JoursAEnlevé);
+        } else {
+            NuméroWeek = String.valueOf(DateEnLettres[1]);
+            while (Integer.valueOf(NuméroWeek) > 0) {
+                NuméroWeek = String.valueOf(Integer.valueOf(DateEnLettres[1])-1);
+                JoursAEnlevé --;
+            }
+            if (Mois31.contains(MoisWeek)) {
+                NuméroWeek = String.valueOf(31-JoursAEnlevé);
+            } else if (Mois30.contains(MoisWeek)) {
+                NuméroWeek = String.valueOf(30-JoursAEnlevé);
+            } else if ((Integer.valueOf(AnnéeWeek)%4==0 && Integer.valueOf(AnnéeWeek)%100!=0) || Integer.valueOf(AnnéeWeek)%400==0) {
+                NuméroWeek = String.valueOf(29-JoursAEnlevé);
+            } else {
+                NuméroWeek = String.valueOf(28-JoursAEnlevé);
+            }
+        }
+    }
+
+    public void placerTaches(JPanel panel) {
+        for (int i=0;i<84;i++) {
+            JTextField text = new JTextField();
+            text.setBorder(new LineBorder(new Color(0, 0, 0)));
+            text.setText(String.valueOf(i));
+            text.setEditable(false);
+            text.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    System.out.println(Calendrier.NBFAITES);
+                    if (PopUpTache == null || !PopUpTache.isVisible()) {
+                        PopUpTache = new PopUpTache(text);
+                        PopUpTache.setVisible(true);
+                    } else {
+                        PopUpTache.toFront();
+                    }
+                }
+            });
+            panel.add(text);
+        }
+
+    }
+
+    public void afficherMessage(JLabel label, JLabel lblRatio ) {
+        if ((double) this.Calendrier.NBFAITES/ (this.Calendrier.NBFAITES+this.Calendrier.NBPASFAITES)>= (double) 1.5/2) {
+            label.setText("Tu es goatesque chef !");
+            label.setForeground(new Color(0, 255, 0));
+            lblRatio.setForeground(new Color(0, 255, 0));
+        } else {
+            if ((double) this.Calendrier.NBFAITES/ (this.Calendrier.NBFAITES+this.Calendrier.NBPASFAITES) >= (double) 1/2 &&
+                    (double) this.Calendrier.NBFAITES/ (this.Calendrier.NBFAITES+this.Calendrier.NBPASFAITES) < (double)1.5/2) {
+                label.setText("Pas mal chef, mais tu peux encore t'améliorer !");
+                label.setForeground(new Color(0, 255, 0));
+                lblRatio.setForeground(new Color(0, 255, 0));
+            } else {
+                label.setText("T'es vraiment une fraude.");
+                label.setForeground(new Color(255, 0, 0));
+                lblRatio.setForeground(new Color(255, 0, 0));
+            }
+        }
+    }
+
+    public void afficherJours(JPanel panel) {
         for (int i=0;i<7;i++) {
             JLabel label = new JLabel("");
             if (Mois31.contains(MoisWeek)) {
@@ -397,13 +427,8 @@ public class Menu extends JFrame {
                 label.setFont(new Font("Source Sans Pro", Font.BOLD, 14));
                 label.setForeground(new Color(0,0,255));
             }
-            panel_days.add(label);
+            panel.add(label);
         }
-    }
-
-    public static void updateNbFaitesVert() {
-        Calendrier.NBFAITES++;
-        effectuees.setText("Tâches effectuées : "+Calendrier.NBFAITES);
     }
 
 }
