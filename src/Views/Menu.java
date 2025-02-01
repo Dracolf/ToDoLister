@@ -1,3 +1,5 @@
+package Views;
+
 import Models.Calendrier;
 import Models.Tache;
 
@@ -26,13 +28,6 @@ import java.awt.GridLayout;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-
-import java.util.ArrayList;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
 public class Menu extends JFrame {
 
     private static final long serialVersionUID = 1L;
@@ -41,7 +36,7 @@ public class Menu extends JFrame {
     private JTextField textField_1;
     public static Calendrier Calendrier;
     public static JLabel effectuees;
-    private static PopUpTache PopUpTache;
+    private static Views.PopUpTache PopUpTache;
     private String JourWeek;
     private String NuméroWeek;
     private String MoisWeek;

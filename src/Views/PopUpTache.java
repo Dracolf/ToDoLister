@@ -1,3 +1,7 @@
+package Views;
+
+import Controllers.PopUpTacheController;
+
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -13,7 +17,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.ImageIcon;
 
@@ -23,6 +26,8 @@ public class PopUpTache extends JFrame {
     private JPanel contentPane;
     public boolean isGreen;
     public boolean isRed;
+    private JTextField text;
+    private PopUpTacheController controller;
 
     /**
      * Launch the application.
@@ -44,8 +49,10 @@ public class PopUpTache extends JFrame {
      * Create the frame.
      */
     public PopUpTache(JTextField text) {
+        controller = new PopUpTacheController(this);
         this.isGreen = false;
         this.isRed = false;
+        this.text = text;
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 450, 300);
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(".\\src\\img\\check.png"));
@@ -65,40 +72,14 @@ public class PopUpTache extends JFrame {
         JButton btnNewButton = new JButton("Oui");
         btnNewButton.setIcon(new ImageIcon(".\\src\\img\\greentick.png"));
         btnNewButton.setBackground(new Color(0, 255, 0));
-        btnNewButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                text.setBackground(new Color(0,255,0));
-                Menu.updateNbFaitesVert();
-
-                //////////////////// TESTS ///////////////////////////////
-				/* isGreen = true;
-				isRed = false;
-				System.out.println(isGreen);
-				System.out.println(isRed);
-				Menu menu = new Menu();
-				menu.effectuees.setText("Tâches effectuées : "+(menu.Calendrier.NBFAITES+1));
-				menu.Calendrier.NBFAITES++;
-				menu.setVisible(true);
-				menu.toFront(); */
-                /////////////////////////////////////////////////////////
-
-            }
-        });
+        btnNewButton.addActionListener(controller);
         panel_1.setLayout(new BorderLayout(0, 0));
 
 
         JButton btnNewButton_1 = new JButton("Non");
         btnNewButton_1.setIcon(new ImageIcon(".\\src\\img\\redcross.png"));
         btnNewButton_1.setBackground(new Color(255, 0, 0));
-        btnNewButton_1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                text.setBackground(new Color(255,0,0));
-                isRed = true;
-                isGreen = false;
-                System.out.println(isGreen);
-                System.out.println(isRed);
-            }
-        });
+        btnNewButton_1.addActionListener(controller);
 
         JPanel panel_2 = new JPanel();
         panel_1.add(panel_2, BorderLayout.NORTH);
@@ -139,5 +120,9 @@ public class PopUpTache extends JFrame {
         lblNewLabel.setFont(new Font("Source Sans Pro", Font.BOLD, 18));
         panel.add(lblNewLabel);
 
+    }
+
+    public JTextField getText() {
+        return text;
     }
 }
